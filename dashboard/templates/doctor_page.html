@@ -197,7 +197,7 @@
         // Increment idle time every second
         setInterval(() => {
             idleTime++;
-            if (idleTime >= 5) { // 5 seconds of inactivity
+            if (idleTime >= 50) { // 50 seconds of inactivity
                 window.location.href = "{% url 'login' %}"; // Redirect to the login page
             }
         }, 1000);
