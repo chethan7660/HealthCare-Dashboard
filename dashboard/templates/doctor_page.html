@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Dashboard</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="styles.css"> <!-- Link to external CSS file -->
+    <style>
+        /* Styling for body */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-image: url('https://eupgkrwi3ki.exactdn.com/app/uploads/2021/01/200104-Medical-Examination-lowres-1024x624.jpg?strip=all&lossy=1&ssl=1'); /* Example URL */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #ffffff;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 1px 1px 2px #555;
+        }
+
+        h3 {
+            color: #032f4d;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            padding: 15px 20px;
+            margin: 20px auto;
+            width: 80%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        h3:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 auto 30px;
+            display: none; /* Hide lists by default */
+            width: 80%;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        ul h2 {
+            padding: 15px;
+            background-color: #007bff;
+            color: white;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        li {
+            background-color: #f1f1f1;
+            margin: 0;
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        li:hover {
+            background-color: grey;
+            color: white;
+            transform: translateX(5px);
+        }
+
+        li:last-child {
+            border-bottom: none; /* Remove border for the last item */
+        }
+
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin-right: 20px;
+            border-radius: 50%;
+            border: 3px solid #007bff;
+            object-fit: cover;
+        }
+
+        .photo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 3px solid #007bff;
+        }
+
+        .details {
+            display: none; /* Hide details initially */
+            margin-left: 30px;
+            background-color: #39a1bc;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .toggle-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h3 {
+                font-size: 1.2rem;
+                padding: 10px 15px;
+            }
+
+            .logo, .photo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .details {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Doctors Page</h2>
+
+    <h3 onclick="toggleList('doctorList')">
+        <img src="https://th.bing.com/th/id/OIP.zwFAPO_I0H9-OWdZ7KdmiQHaJI?w=171&h=210&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Doctor Logo" class="logo">
+        Doctors 
+        <i class="fas fa-chevron-down toggle-icon"></i>
+    </h3>
+    <ul id="doctorList">
+        <h2>Total Doctors: {{ doctors | length }}</h2>
+        {% for doctor in doctors %}
+            <li onclick="toggleDoctorDetails(this)">
+                <img src="{{ doctor.photo.url }}" class="photo" alt="{{ doctor.name }}">
+                <div>
+                    <strong>D{{ forloop.counter }}</strong> <!-- Doctor Number -->
+                    <div class="details">
+                        <p><strong>Name:</strong> {{ doctor.name }}</p>
+                        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                        <p><strong>Experience:</strong> {{ doctor.experience }} years</p>
+                        <p><strong>Contact:</strong> {{ doctor.contact }}</p>
+                        <p><strong>Number of Patients Admitted:</strong> {{ doctor.patients.count }}</p>
+                        <p><strong>Patients Treated:</strong>
+                            {% for patient in doctor.patients.all %}
+                            <a href="javascript:void(0)" onclick="togglePatientDetails(event, '{{ doctor.id }}', '{{ patient.id }}')">{{ patient.name }}</a>
+                           {% if not forloop.last %}, {% endif %}
+                             <!-- Hidden patient photo -->
+                            <img id="patient-photo-{{ patient.id }}" src="{{ patient.photo.url }}" class="photo" alt="{{ patient.name }}" style="display: none;">
+                        {% empty %}
+                            No patients yet.
+                        {% endfor %}
+                        </p>
+                    </div>
+                </li>
+            {% empty %}
+                <p>No doctors available.</p>
+            {% endfor %}
+        </ul>
+
+    <script>
+        
+        // Redirect after 5 seconds of inactivity
+        let idleTime = 0;
+    
+        // Reset idle time on user activity
+        function resetIdleTimer() {
+            idleTime = 0;
+        }
+    
+        // Increment idle time every second
+        setInterval(() => {
+            idleTime++;
+            if (idleTime >= 5) { // 5 seconds of inactivity
+                window.location.href = "{% url 'login' %}"; // Redirect to the login page
+            }
+        }, 1000);
+    
+        // Listen for user activity to reset the idle timer
+        window.onload = () => {
+            document.addEventListener('mousemove', resetIdleTimer);
+            document.addEventListener('keypress', resetIdleTimer);
+            document.addEventListener('click', resetIdleTimer);
+            document.addEventListener('scroll', resetIdleTimer);
+        };
+
+        // Toggle doctor details visibility
+        function toggleDoctorDetails(item) {
+            var details = item.querySelector('.details');
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block'; // Show details
+            } else {
+                details.style.display = 'none'; // Hide details
+            }
+        }
+
+        // Toggle list visibility and chevron direction
+        function toggleList(listId) {
+            var list = document.getElementById(listId);
+            if (list.style.display === 'none' || list.style.display === '') {
+                list.style.display = 'block'; // Show the list
+            } else {
+                list.style.display = 'none'; // Hide the list
+            }
+
+            // Toggle the arrow direction (chevron-up/down)
+            var icon = list.previousElementSibling.querySelector('.toggle-icon');
+            if (icon.classList.contains('rotate')) {
+                icon.classList.remove('rotate');
+            } else {
+                icon.classList.add('rotate');
+            }
+        }
+
+        // Toggle visibility of doctor and patient details when patient name is clicked
+        function togglePatientDetails(event, doctorId, patientId) {
+            event.stopPropagation(); // Prevent triggering doctor's toggle
+
+            var patientPhoto = document.getElementById('patient-photo-' + patientId);
+            var doctorDetails = document.querySelector(`#doctor-${doctorId} .details`);
+
+            // Toggle patient photo visibility
+            if (patientPhoto.style.display === 'none' || patientPhoto.style.display === '') {
+                patientPhoto.style.display = 'block'; // Show the photo
+            } else {
+                patientPhoto.style.display = 'none'; // Hide the photo
+            }
+
+            // Toggle doctor details visibility
+            if (doctorDetails.style.display === 'none' || doctorDetails.style.display === '') {
+                doctorDetails.style.display = 'block'; // Show details
+            } else {
+                doctorDetails.style.display = 'none'; // Hide details
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+Entity,Name,Disease,Age,Date of Admission
+Patient,Ramu,Cavities,67,2024-11-21
+Patient,Komala,Cancer,50,2021-12-22
+Patient,Krishna,Skin infection,30,2020-03-12
+Patient,Dhamodhar,Nerve disease,67,2018-07-23
+Patient,Sahana,Braces,45,2024-12-12
+Patient,Johima,UTI,56,2019-11-23
+Patient,Nidhi,Skin,22,2022-09-09
+Patient,Pavan,Lung Infection,67,2018-12-04
+Doctor,Suraj,Dentist,3,1
+Doctor,Bhavana,Dentist,1,1
+Doctor,Chethan,Neurologist,3,1
+Doctor,Hampana,Dermatalogist,1,2
+Doctor,Harshitha,Gyno,5,1
+Doctor,Asha,Onkologist,3,1
+Doctor,Sharma,Cardiologist,7,0
+Doctor,Gagan,Nephrologist,19,0
+Doctor,Asiff,Pulmonologist,20,1
+Doctor,Sonal Dezosa,Orthopedic,7,0

@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Healthcare Dashboard</title>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script> <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="styles.css"> <!-- External CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> <!-- Chart.js -->
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: url('https://www.thecollegemonk.com/images/blog/commission-on-a21.jpg') center/cover no-repeat fixed;
+            color: #ffffff;
+        }
+
+        .logout-button {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .logout-button:hover {
+            background-color: #c0392b;
+        }
+
+        h2 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 50px;
+        }
+        
+        h4 {
+            color: #2c3e50;
+            text-align: center;
+            font-size: 25px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            display: none; /* Hide lists by default */
+        }
+
+        li {
+            background-color: #1c96be;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        li:nth-child(odd) {
+            background-color: #d1ecf1;
+        }
+
+        li:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .photo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 2px solid #007bff;
+        }
+
+        .button-section {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .button-section a {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        h3 {
+            color: #2c3e50;
+            text-align: left;
+            font-size: 25px;
+            position: relative;
+            padding-left: 70px; /* Adds spacing for the logo */
+        }
+
+        h3 img.logo {
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.6); /* Subtle border to integrate with background */
+            background-blend-mode: overlay; /* Blends the image into the background */
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3), inset 0px -2px 10px rgba(255, 255, 255, 0.2); /* Emerging effect */
+        }
+
+
+        .chart-container {
+            width: 80%;
+            margin: 0 auto;
+            display: none; /* Initially hide the graph */
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        canvas {
+            max-width: 100%;
+        }
+
+        .show-graph-btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            margin: 20px auto;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more-btn, .add-btn {
+            display: inline-block;
+            text-decoration: none;
+            background-color: #f39c12;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px auto;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .more-buttons, .add-buttons {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+        
+        .details {
+            display: none; /* Hide details initially */
+            margin-left: 30px;
+            background-color: #14b5de;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid powderblue;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        .toggle-icon {
+            margin-left: auto;
+            font-size: 18px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .toggle-icon.rotate {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h3 {
+                font-size: 1.2rem;
+                padding: 10px 15px;
+            }
+
+            .logo, .photo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .details {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Healthcare Dashboard</h2>
+
+    <!-- Logout Button -->
+    <button class="logout-button" onclick="logout()">Logout</button>
+
+    <!-- Patient List Section -->
+    <div class="section">
+        <h3 onclick="toggleList('patientList', 'Patients')">
+            <img src="https://th.bing.com/th/id/OIP.652IaHkCL-67DOzilX5zWQHaGC?w=227&h=184&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Patient Logo" class="logo">
+            Patients 
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </h3>
+        <ul id="patientList">
+            <h4>Total Patients: {{ patients | length }}</h4>
+            {% for patient in patients %}
+                <li onclick="toggleDetails(this)">
+                    <img src="{{ patient.photo.url }}" class="photo" alt="{{ patient.name }}">
+                    <div>
+                        <strong>P{{ forloop.counter }}</strong> <!-- Patient Number -->
+                        <div class="details">
+                            <p><strong>Name:</strong> {{ patient.name }}</p>
+                            <p><strong>Disease:</strong> {{ patient.disease }}</p>
+                            <p><strong>Age:</strong> {{ patient.age }}</p>
+                            <p><strong>DOA:</strong> {{ patient.date_admitted }}</p>
+                            <p><strong>Allotted Doctor:</strong>
+                                {% for doctor in patient.doctors.all %}
+                                    Dr.{{ doctor.name }}
+                                {% empty %}
+                                    No patients yet.
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            {% empty %}
+            <p>No patients available.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Doctor List Section -->
+    <div class="section">
+        <h3 onclick="toggleList('doctorList', 'Doctors')">
+            <img src="https://th.bing.com/th/id/OIP.zwFAPO_I0H9-OWdZ7KdmiQHaJI?w=171&h=210&c=7&r=0&o=5&dpr=1.5&pid=1.7" alt="Doctor Logo" class="logo">
+            Doctors 
+            <i class="fas fa-chevron-down toggle-icon"></i>
+        </h3>
+        <ul id="doctorList">
+            <h4>Total Doctors: {{ doctors | length }}</h4>
+            {% for doctor in doctors %}
+                <li onclick="toggleDoctorDetails(this)">
+                    <img src="{{ doctor.photo.url }}" class="photo" alt="{{ doctor.name }}">
+                    <div>
+                        <strong>D{{ forloop.counter }}</strong> <!-- Doctor Number -->
+                        <div class="details">
+                            <p><strong>Name:</strong> {{ doctor.name }}</p>
+                            <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                            <p><strong>Experience:</strong> {{ doctor.experience }} years</p>
+                            <p><strong>Contact:</strong> {{ doctor.contact }}</p>
+                            <p><strong>Number of Patients Admitted:</strong> {{ doctor.patients.count }}</p>
+                            <p><strong>Patients Treated:</strong>
+                                {% for patient in doctor.patients.all %}
+                                <a href="javascript:void(0)" onclick="togglePatientDetails(event, '{{ doctor.id }}', '{{ patient.id }}')">{{ patient.name }}</a>
+                               {% if not forloop.last %}, {% endif %}
+                                 <!-- Hidden patient photo -->
+                                <img id="patient-photo-{{ patient.id }}" src="{{ patient.photo.url }}" class="photo" alt="{{ patient.name }}" style="display: none;">
+                            {% empty %}
+                                No patients yet.
+                            {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                </li>
+            {% empty %}
+                <p>No doctors available.</p>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="button-section">
+        <button class="more-btn" onclick="toggleMoreButtons()">More</button>
+    </div>
+
+    <div class="more-buttons" id="moreButtons">
+        <button class="add-btn" onclick="toggleAddButtons()">Add</button>
+        <button class="show-graph-btn" onclick="showGraph()">Show Graph</button>
+    </div>
+
+    <div class="add-buttons" id="addButtons">
+        <button><a href="{% url 'add_patient' %}">Add Patient</a></button>
+        <button><a href="{% url 'add_doctor' %}">Add Doctor</a></button>
+    </div>
+
+    <div class="chart-container" id="graphSection">
+        <h3>Dashboard Graphs</h3>
+        <canvas id="healthcareChart"></canvas>
+    </div>
+    <div class="button-section" style="position: absolute; bottom: 20px; right: 20px;">
+        <a href="{% url 'export_csv' %}" class="show-graph-btn">Export-csv</a>
+    </div>
+    <div class="button-section">
+        <button class="show-graph-btn" onclick="showPowerBI()">View Power BI Report</button>
+    </div>
+    
+    <div id="powerBISection" style="display: none; margin: 20px auto; text-align: center;">
+        <h2>Power BI Report</h2>
+        <embed id="powerBIPDF" src="/static/reports/powerbi_report.pdf" type="application/pdf" width="80%" height="600px" />
+    </div>
+    <script>
+        function showPowerBI() {
+            const powerBISection = document.getElementById('powerBISection');
+            // Toggle the visibility of the Power BI section
+            powerBISection.style.display = powerBISection.style.display === 'block' ? 'none' : 'block';
+        }
+    </script>
+
+    <script>
+        function logout() {
+            window.location.href = "{% url 'login' %}";
+        }
+
+        var doctorCount = {{ doctors.count }};
+        var patientCount = {{ patients.count }};
+        var patientsAdmitted = [
+            {% for doctor in doctors %}
+                {{ doctor.patients.count }}{% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        ];
+
+        var ctx = document.getElementById('healthcareChart').getContext('2d');
+        var healthcareChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Total Doctors', 'Total Patients', 'Patients per Doctor'], 
+                datasets: [{
+                    label: 'Healthcare Data',
+                    data: [doctorCount, patientCount, ...patientsAdmitted],
+                    backgroundColor: ['#3498db', '#2ecc71', '#f39c12'],
+                    borderColor: ['#2980b9', '#27ae60', '#e67e22'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        function showGraph() {
+            var graphSection = document.getElementById('graphSection');
+            if (graphSection.style.display === 'none' || graphSection.style.display === '') {
+                graphSection.style.display = 'block';
+            } else {
+                graphSection.style.display = 'none';
+            }
+        }
+
+        function toggleMoreButtons() {
+            var moreButtons = document.getElementById('moreButtons');
+            var addButtons = document.getElementById('addButtons');
+            var graphSection = document.getElementById('graphSection');
+
+            if (moreButtons.style.display === 'none' || moreButtons.style.display === '') {
+                moreButtons.style.display = 'block';
+            } else {
+                moreButtons.style.display = 'none';
+                addButtons.style.display = 'none';
+                graphSection.style.display = 'none';
+            }
+        }
+
+        function toggleAddButtons() {
+            var addButtons = document.getElementById('addButtons');
+            if (addButtons.style.display === 'none' || addButtons.style.display === '') {
+                addButtons.style.display = 'block';
+            } else {
+                addButtons.style.display = 'none';
+            }
+        }
+
+        function toggleList(listId, section) {
+            const list = document.getElementById(listId);
+            const items = list.querySelectorAll('li');
+            list.style.display = list.style.display === 'none' || list.style.display === '' ? 'block' : 'none';
+
+            items.forEach(item => {
+                const details = item.querySelector('.details');
+                if (list.style.display === 'none') {
+                    details.style.display = 'none'; // Hide details when toggled off
+                }
+            });
+
+            var icon = list.previousElementSibling.querySelector('.toggle-icon');
+            if (icon.classList.contains('rotate')) {
+                icon.classList.remove('rotate');
+            } else {
+                icon.classList.add('rotate');
+            }
+        }
+
+        function toggleDetails(item) {
+            var details = item.querySelector('.details');
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block';
+            } else {
+                details.style.display = 'none';
+            }
+        }
+
+        function toggleDoctorDetails(item) {
+            var details = item.querySelector('.details');
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block';
+            } else {
+                details.style.display = 'none';
+            }
+        }
+        function togglePatientDetails(event, doctorId, patientId) {
+            event.stopPropagation(); // Prevent triggering doctor's toggle
+
+            var patientPhoto = document.getElementById('patient-photo-' + patientId);
+            var doctorDetails = document.querySelector(`#doctor-${doctorId} .details`);
+
+            // Toggle patient photo visibility
+            if (patientPhoto.style.display === 'none' || patientPhoto.style.display === '') {
+                patientPhoto.style.display = 'block'; // Show the photo
+            } else {
+                patientPhoto.style.display = 'none'; // Hide the photo
+            }
+
+            // Toggle doctor details visibility
+            if (doctorDetails.style.display === 'none' || doctorDetails.style.display === '') {
+                doctorDetails.style.display = 'block'; // Show details
+            } else {
+                doctorDetails.style.display = 'none'; // Hide details
+            }
+        }
+        
+
+    </script>
+</body>
+</html>
